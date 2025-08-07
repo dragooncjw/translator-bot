@@ -24,7 +24,7 @@ app.webhooks.on('issues.opened', async ({ octokit, payload }) => {
   });
 });
 
-const middleware = createNodeMiddleware(app.webhooks, { path: "/api/webhook" });
+const middleware = createNodeMiddleware(app.webhooks);
 
 export default async function handler(req, res) {
   return middleware(req, res);
