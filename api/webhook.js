@@ -9,18 +9,34 @@ const app = new App({
 });
 
 app.webhooks.on('issues.opened', async ({ octokit, payload }) => {
-  const issueTitle = payload.issue.title;
+  // const issueTitle = payload.issue.title;
   const issueBody = payload.issue.body;
 
-  const translatedTitle = await translate(issueTitle, { to: 'en' }).then(res => res.text).catch(() => issueTitle);
-  const translatedBody = await translate(issueBody, { to: 'en' }).then(res => res.text).catch(() => issueBody);
+  // const translatedTitle = await translate(issueTitle, { to: 'en' }).then(res => res.text).catch(() => issueTitle);
+  // const translatedBody = await translate(issueBody, { to: 'en' }).then(res => res.text).catch(() => issueBody);
 
   await octokit.rest.issues.update({
     owner: payload.repository.owner.login,
     repo: payload.repository.name,
     issue_number: payload.issue.number,
-    title: translatedTitle,
-    body: `${issueBody}\n\n> ${translatedBody}`,
+    title: '这是一个新的 title',
+    // body: `${issueBody}\n\n> ${translatedBody}`,
+  });
+});
+
+app.webhooks.on('issue_comment.created', async ({ octokit, payload }) => {
+  // const issueTitle = payload.issue.title;
+  const issueBody = payload.issue.body;
+
+  // const translatedTitle = await translate(issueTitle, { to: 'en' }).then(res => res.text).catch(() => issueTitle);
+  // const translatedBody = await translate(issueBody, { to: 'en' }).then(res => res.text).catch(() => issueBody);
+
+  await octokit.rest.issues.update({
+    owner: payload.repository.owner.login,
+    repo: payload.repository.name,
+    issue_number: payload.issue.number,
+    title: '这是一个新的 title',
+    // body: `${issueBody}\n\n> ${translatedBody}`,
   });
 });
 
