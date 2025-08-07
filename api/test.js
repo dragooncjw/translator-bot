@@ -2,7 +2,11 @@ import translate from '@tomsun28/google-translate-api';
 
 import { Probot } from "probot";
 
-const app = new Probot();
+const app = new Probot({
+  appId: process.env.APP_ID,
+  privateKey: process.env.PRIVATE_KEY.replace(/\\n/g, "\n"), // 注意处理换行
+  secret: process.env.WEBHOOK_SECRET,
+});
 
 // 翻译函数
 async function translateIssueOrigin(body) {
