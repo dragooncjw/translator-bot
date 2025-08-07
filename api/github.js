@@ -1,5 +1,5 @@
 const { createProbot, createNodeMiddleware } = require('probot');
-const appFn = require('./app-probot');
+const appFn = require('../app-probot');
 
 const probot = createProbot();
 
