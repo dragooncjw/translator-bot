@@ -1,6 +1,11 @@
-const { createProbot, createNodeMiddleware } = require('probot');
-const appFn = require('../app-probot');
+import { createProbot, createNodeMiddleware } from 'probot';
 
-const probot = createProbot();
+import appFn from '../app-probot';
 
-module.exports = createNodeMiddleware(appFn, { probot });
+export function GET(request) {
+  const probot = createProbot();
+  createNodeMiddleware(appFn, { probot });
+  return Response.json({
+    message: 'ok'
+  });
+}
