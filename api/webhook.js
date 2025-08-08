@@ -1,5 +1,3 @@
-import getRawBody from "raw-body";
-
 import { Webhooks } from "@octokit/webhooks";
 import { createAppAuth } from "@octokit/auth-app";
 import { Octokit } from "@octokit/rest";
@@ -35,19 +33,17 @@ export default async function handler(req, res) {
     return res.status(200).send("OK");
   }
   try {
-    const rawBody = (await getRawBody(req)).toString(); // 拿到原始请求体字符串
-
     const sig = req.headers["x-hub-signature-256"];
     const event = req.headers["x-github-event"];
     const id = req.headers["x-github-delivery"];
 
-    res.status(200).send("Event received", req.body);
+    res.status(200).send(`Event received${req.body}`);
 
     await webhooks.verifyAndReceive({
       id,
       name: event,
       signature: sig,
-      payload: JSON.parse(rawBody),  // 解析后的对象
+      payload: req.body,
     });
 
     res.status(200).send("Event received");
