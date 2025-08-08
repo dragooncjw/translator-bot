@@ -26,6 +26,11 @@ export default async function handler(req, res) {
     const id = req.headers["x-github-delivery"];
     const rawBody = await getRawBody(req);
 
+    if (event !== 'issues') {
+      // 除了 issues 以外的 webhook 都返回成功
+      res.status(200).send("Installation received");
+    }
+
     const webhooks = new Webhooks({
       secret: process.env.WEBHOOK_SECRET,
     });
