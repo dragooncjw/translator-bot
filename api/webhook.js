@@ -63,7 +63,7 @@ export default async function handler(req, res) {
 
     // 机器人的回复不要翻译
     if (objBody?.comment?.user?.login === 'flowgram-translator-bot[bot]') {
-      res.status(200).send("not issue, received");
+      res.status(200).send("only translate user txt");
       return;
     }
 
@@ -79,6 +79,8 @@ export default async function handler(req, res) {
 
     // 监听 issue 事件并修改
     webhooks.on("issues.opened", async ({ payload }) => {
+      const issueTitle = payload.issue.title;
+      const body = payload.issue.body
       console.log(`Issue opened: ${payload.issue.title}`);
 
       // 1. 获取 installation token
