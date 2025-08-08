@@ -97,8 +97,6 @@ export default async function handler(req, res) {
       const newTitle = await translateIssueOrigin(issueTitle);
       const newBody = await getTranslatedBodyWithOrigin(body) || body;
 
-      res.status(200).send(`translated content received${newTitle} ${newBody}`);
-
       console.log('debugger translated content:', newTitle, newBody);
       await octokit.rest.issues.update({
         owner,
