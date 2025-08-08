@@ -99,9 +99,9 @@ export default async function handler(req, res) {
 
       console.log('debugger translated content:', newTitle, newBody);
       await octokit.rest.issues.update({
-        owner,
-        repo,
-        issue_number,
+        owner: payload.repository.owner.login,
+        repo: payload.repository.name,
+        issue_number: payload.issue.number,
         title: newTitle,
         body: newBody,
       });
