@@ -19,8 +19,7 @@ async function translateIssueOrigin(body) {
       }
     })
     .catch(err => {
-      core.error(err)
-      core.setFailed(err.message)
+      console.error(err.message);
     })
   return result || body
 }
@@ -60,6 +59,11 @@ export default async function handler(req, res) {
     const id = req.headers["x-github-delivery"];
     const rawBody = await getRawBody(req);
 
+    // 机器人的回复不要翻译
+    if (rawBody?.comment?.user?.login === 'flowgram-translator-bot[bot]') {
+      res.status(200).send("not issue, received");
+    }
+
     if (event !== 'issues' && event !== 'issue_comment') {
       // 除了 issues 以外的 webhook 都返回成功
       res.status(200).send("not issue, received");
@@ -87,6 +91,8 @@ export default async function handler(req, res) {
 
       const newTitle = await translateIssueOrigin(issueTitle);
       const newBody = await getTranslatedBodyWithOrigin(body) || body;
+
+      res.status(200).send(`translated content received${newTitle} ${newBody}`);
 
       console.log('debugger translated content:', newTitle, newBody);
       await octokit.rest.issues.update({
