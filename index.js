@@ -1,7 +1,6 @@
 const express = require('express');
 const { Webhooks } = require('@octokit/webhooks');
 const app = express();
-const port = process.env.PORT || 3000;
 
 // 初始化 GitHub Webhook
 const webhooks = new Webhooks({
@@ -30,7 +29,6 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', time: new Date() });
 });
 
-// 启动服务器
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+// 关键修改：不要使用 app.listen()，而是导出 app
+module.exports = app;
+    
