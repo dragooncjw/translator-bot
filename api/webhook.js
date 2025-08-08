@@ -59,7 +59,7 @@ export default async function handler(req, res) {
     const id = req.headers["x-github-delivery"];
     const rawBody = await getRawBody(req);
 
-    res.status(200).send(`rawBody ${JSON.stringify(rawBody)}`);
+    res.status(200).send(`rawBody ${rawBody}`);
     return;
 
   } catch (err) {
