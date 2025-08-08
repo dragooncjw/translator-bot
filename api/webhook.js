@@ -37,7 +37,7 @@ export default async function handler(req, res) {
     const event = req.headers["x-github-event"];
     const id = req.headers["x-github-delivery"];
 
-    res.status(200).send(`Event received${req.body}`);
+    res.status(200).send(`Event received${JSON.stringify(req.body)}`);
 
     await webhooks.verifyAndReceive({
       id,
