@@ -22,7 +22,7 @@ async function translateIssueOrigin(body) {
       core.error(err)
       core.setFailed(err.message)
     })
-  return result
+  return result || body
 }
 
 function combineWithTranslation(original, translation) {
@@ -85,11 +85,11 @@ export default async function handler(req, res) {
       // 2. 调用 GitHub API 修改标题
       const octokit = new Octokit({ auth: installationAuthentication.token });
 
-      const newTitle = await translateIssueOrigin(issueTitle) || issueTitle;
+      const newTitle = await translateIssueOrigin(issueTitle);
       const newBody = await getTranslatedBodyWithOrigin(body) || body;
 
       console.log('debugger translated content:', newTitle, newBody);
-      await octokit.issues.update({
+      await octokit.rest.issues.update({
         owner,
         repo,
         issue_number,
