@@ -2,31 +2,19 @@ import { Webhooks } from "@octokit/webhooks";
 import { createAppAuth } from "@octokit/auth-app";
 import { Octokit } from "@octokit/rest";
 
-const webhooks = new Webhooks({
-  secret: process.env.WEBHOOK_SECRET,
-});
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
 
-// 监听 issue 事件并修改
-webhooks.on("issues.opened", async ({ payload }) => {
-  console.log(`Issue opened: ${payload.issue.title}`);
-
-  // 1. 获取 installation token
-  const auth = createAppAuth({
-    appId: process.env.APP_ID,
-    privateKey: process.env.PRIVATE_KEY.replace(/\\n/g, "\n"), // Vercel 会自动转义换行
-    installationId: payload.installation.id,
-  });
-  const installationAuthentication = await auth({ type: "installation" });
-
-  // 2. 调用 GitHub API 修改标题
-  const octokit = new Octokit({ auth: installationAuthentication.token });
-  await octokit.issues.update({
-    owner: payload.repository.owner.login,
-    repo: payload.repository.name,
-    issue_number: payload.issue.number,
-    title: `[BOT] ${payload.issue.title}`,
-  });
-});
+async function getRawBody(req) {
+  const chunks = [];
+  for await (const chunk of req) {
+    chunks.push(chunk);
+  }
+  return Buffer.concat(chunks).toString('utf8');
+}
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -36,12 +24,39 @@ export default async function handler(req, res) {
     const sig = req.headers["x-hub-signature-256"];
     const event = req.headers["x-github-event"];
     const id = req.headers["x-github-delivery"];
+    const rawBody = await getRawBody(req);
+
+    const webhooks = new Webhooks({
+      secret: process.env.WEBHOOK_SECRET,
+    });
+
+    // 监听 issue 事件并修改
+    webhooks.on("issues.opened", async ({ payload }) => {
+      console.log(`Issue opened: ${payload.issue.title}`);
+
+      // 1. 获取 installation token
+      const auth = createAppAuth({
+        appId: process.env.APP_ID,
+        privateKey: process.env.PRIVATE_KEY.replace(/\\n/g, "\n"), // Vercel 会自动转义换行
+        installationId: payload.installation.id,
+      });
+      const installationAuthentication = await auth({ type: "installation" });
+
+      // 2. 调用 GitHub API 修改标题
+      const octokit = new Octokit({ auth: installationAuthentication.token });
+      await octokit.issues.update({
+        owner: payload.repository.owner.login,
+        repo: payload.repository.name,
+        issue_number: payload.issue.number,
+        title: `[BOT] ${payload.issue.title}`,
+      });
+    });
 
     await webhooks.verifyAndReceive({
       id,
       name: event,
       signature: sig,
-      payload: req.body,
+      payload: rawBody, // 传入原始字符串
     });
 
     res.status(200).send("Event received");
@@ -50,9 +65,3 @@ export default async function handler(req, res) {
     res.status(500).send("Webhook error");
   }
 }
-
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
