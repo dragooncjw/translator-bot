@@ -62,6 +62,7 @@ export default async function handler(req, res) {
     // 机器人的回复不要翻译
     if (rawBody?.comment?.user?.login === 'flowgram-translator-bot[bot]') {
       res.status(200).send("not issue, received");
+      return;
     }
 
     if (event !== 'issues' && event !== 'issue_comment') {
