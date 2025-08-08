@@ -1,34 +1,26 @@
 const express = require('express');
-const { Webhooks } = require('@octokit/webhooks');
 const app = express();
 
-// 初始化 GitHub Webhook
-const webhooks = new Webhooks({
-  secret: process.env.GITHUB_WEBHOOK_SECRET || 'development-secret'
-});
-
-// 处理 ping 事件
-webhooks.on('ping', ({ id, name, payload }) => {
-  console.log(`Received ping event: ${id}`);
-});
-
-// 处理 issues 事件
-webhooks.on('issues.opened', async ({ id, name, payload }) => {
-  console.log(`Received issues.opened event: ${id}`);
-  console.log(`Issue title: ${payload.issue.title}`);
-});
-
-// 配置 Express 路由
+// 中间件
 app.use(express.json());
 
-// GitHub Webhook 端点
-app.post('/api/github/webhook', webhooks.middleware);
-
-// 健康检查端点
+// 路由
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', time: new Date() });
+  res.json({ 
+    status: 'ok', 
+    time: new Date().toISOString() 
+  });
 });
 
-// 关键修改：不要使用 app.listen()，而是导出 app
+app.get('/api/hello', (req, res) => {
+  res.json({ message: 'Hello from Vercel!' });
+});
+
+// 404 处理
+app.all('*', (req, res) => {
+  res.status(404).json({ status: 'not found' });
+});
+
+// 关键：导出应用实例，不要使用 app.listen()
 module.exports = app;
     
