@@ -27,10 +27,13 @@ async function translateIssueOrigin(body) {
     .catch(err => {
       console.error(err.message);
     })
-  return result || body
+  return result;
 }
 
 function combineWithTranslation(original, translation) {
+  if (!translation) {
+    return original.trim(); 
+  }
   // 1. 用换行拆分翻译文本（假设每一段是一句或一条翻译）
   const translationLines = translation.split('\n').filter(line => line.trim() !== '');
 
@@ -62,6 +65,10 @@ async function retranslateIssue(body) {
 
   // 3. 调用翻译 API
   const translatedText = await translateIssueOrigin(originalText);
+
+  if (!translatedText) {
+    return originalText;
+  }
 
   // 4. 生成新的翻译块
   const markdownTranslated = translatedText
@@ -145,7 +152,7 @@ export default async function handler(req, res) {
       // 2. 调用 GitHub API 修改标题
       const octokit = new Octokit({ auth: installationAuthentication.token });
 
-      const newTitle = await translateIssueOrigin(issueTitle);
+      const newTitle = await translateIssueOrigin(issueTitle) || issueTitle;
       const newBody = await getTranslatedBodyWithOrigin(body) || body;
 
       console.log('debugger translated content:', newTitle, newBody);
@@ -204,7 +211,7 @@ export default async function handler(req, res) {
       // 2. 调用 GitHub API 修改标题
       const octokit = new Octokit({ auth: installationAuthentication.token });
 
-      const newTitle = await translateIssueOrigin(issueTitle);
+      const newTitle = await translateIssueOrigin(issueTitle) || issueTitle;
       const newBody = await retranslateIssue(issueBody) || issueBody;
 
       await octokit.rest.issues.update({
