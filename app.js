@@ -1,7 +1,6 @@
 import dotenv from 'dotenv'
-import fs from 'fs'
 import http from 'http'
-import { Octokit, App } from 'octokit'
+import { App } from 'octokit'
 import translate from '@tomsun28/google-translate-api'
 import { createNodeMiddleware } from '@octokit/webhooks'
 
@@ -15,7 +14,6 @@ const appId = process.env.APP_ID
 const privateKey = process.env.PRIVATE_KEY;
 
 const secret = process.env.WEBHOOK_SECRET
-const enterpriseHostname = process.env.ENTERPRISE_HOSTNAME
 // const messageForNewPRs = fs.readFileSync('./message.md', 'utf8')
 
 // Create an authenticated Octokit client authenticated as a GitHub App
@@ -25,11 +23,6 @@ const app = new App({
   webhooks: {
     secret
   },
-  ...(enterpriseHostname && {
-    Octokit: Octokit.defaults({
-      baseUrl: `https://${enterpriseHostname}/api/v3`
-    })
-  })
 })
 
 async function translateIssueOrigin(body) {
@@ -49,13 +42,10 @@ async function translateIssueOrigin(body) {
 }
 
 function combineWithTranslation(original, translation) {
-  // 1. 用换行拆分翻译文本（假设每一段是一句或一条翻译）
   const translationLines = translation.split('\n').filter(line => line.trim() !== '');
 
-  // 2. 拼接 Markdown 引用的翻译摘录
   const quotedTranslation = translationLines.map(line => `> ${line}`).join('\n');
 
-  // 3. 拼接最终内容
   return `${original.trim()}\n\n${quotedTranslation}`;
 }
 
@@ -75,10 +65,6 @@ app.webhooks.on('issues.opened', async({octokit, payload}) => {
   const issueTitle = payload.issue.title;
   const body = payload.issue.body
   console.log('Received new issue opened', issueTitle, body);
-  // 执行翻译，并且替换
-  // await octokit.rest.issues.update({
-  //   title: '这是新的 Issue 标题'
-  // });
   const owner = payload.repository.owner.login;
   const repo = payload.repository.name;
   const issue_number = payload.issue.number;
