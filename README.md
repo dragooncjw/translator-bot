@@ -44,7 +44,7 @@ Before going live, you need to update the bot name in api/webhook.js:
 
 ```
 // Replace with your GitHub App’s name
-const botName = 'flowgram-translator-bot[bot]';
+flowgram-translator-bot[bot]
 ```
 
 
