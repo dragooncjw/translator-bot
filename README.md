@@ -49,3 +49,17 @@ const botName = 'flowgram-translator-bot[bot]';
 
 
 This name is used to identify whether a comment edit is initiated by the translation bot. Make sure to replace it with the actual name of your GitHub App.
+
+In addition to updating the bot name, you also need to configure the same environment variables in your Vercel project as you did in your local .env file:
+
+```
+APP_ID
+WEBHOOK_SECRET
+PRIVATE_KEY_PATH
+```
+
+
+Set them in your Vercel dashboard at:
+https://vercel.com/[your-organization]/translator-bot/settings/environment-variables
+
+Make sure the values match your local .env configuration to ensure the app works correctly in production.
