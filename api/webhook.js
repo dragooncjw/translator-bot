@@ -15,12 +15,15 @@ const suggestionTxt = '> This text is auto-translated:';
 
 const endMarker = '<!-- bot-translation-end -->';
 
+const normalize = (str) => str.replace(/\s+/g, ' ').trim();
+
 async function translateIssueOrigin(body) {
   let result = ''
   await translate(body, {to: 'en'})
     .then(res => {
       console.log('translated en text', res)
-      if (res.text !== body) {
+      // 去掉换行符后再比对，避免格式差异导致误判
+      if (normalize(res.text) !== normalize(body)) {
         result = res.text
       }
     })
